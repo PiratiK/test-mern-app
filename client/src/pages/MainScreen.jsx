@@ -5,6 +5,8 @@ import {isMobileOnly} from 'react-device-detect'
 
 import { Links, EmailForm } from '../components'
 
+import api from '../api'
+
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import '../fonts/shnobel.css'
@@ -44,7 +46,60 @@ const MobileTitle = styled.p.attrs({
 `
 
 class MainScreen extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            id: 1,
+            shared: false,
+            email: null,
+        }
+    }
+
+    componentDidMount = async () => { 
+        const { id, shared, email } = this.state
+        const payload = { id, shared, email }
+        await api.insertUser(payload).then(res => {
+            if (res.status == 200) {
+                this.setState({
+                    shared: res.data.data.shared,
+                    email: res.data.data.email,
+                })
+            } 
+        })
+    }
+
+    changeShared = async (newValue) => {
+        this.setState({
+            shared: newValue,
+        }, async () => { 
+            const { id, shared, email } = this.state
+            const payload = { shared, email }
+            await api.updateUserById(id, payload)
+        })
+    }
+
+    changeEmail = (newValue) => {
+        this.setState({
+            email: newValue,
+        }, async () => {
+            const { id, shared, email } = this.state
+            const payload = { shared, email }
+            await api.updateUserById(id, payload)
+        })
+    }
+
+    // finale = event => {
+    //     event.preventDefault()
+
+    //     if (this.state.shared && this.state.email != null) { 
+    //         window.location.href = `/final`
+    //     }
+    // }
+
     render() {
+        if (this.state.shared && this.state.email != null) { 
+            window.location.href = `/final`
+        }
         return (
             <div>
               {isMobileOnly
@@ -54,11 +109,11 @@ class MainScreen extends Component {
                 </MobileContainer>
                 :
                 <Container>
-                  <Title>Чтобы выиграть путешествие</Title>
+                        <Title>Чтобы выиграть путешествие</Title>
                 </Container>
                 }
-              <Links />
-              <EmailForm />
+                <Links shared={this.state.shared} changeShared={ this.changeShared.bind(this) } />
+                <EmailForm email={this.state.email} changeEmail={this.changeEmail.bind(this)} />
             </div>
         )
     }

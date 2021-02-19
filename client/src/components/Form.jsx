@@ -96,6 +96,49 @@ const MobileButton = styled.button.attrs({
     }
 `
 
+const Checkbox = styled.input`
+position: absolute;
+  opacity: 0;
+
+  & + label {
+    position: absolute;
+    padding: 0;
+  }
+
+  & + label:before {
+    content: "";
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: text-top;
+    width: 20px;
+    height: 20px;
+    background: white;
+  }
+
+  &:disabled + label {
+    color: white;
+    cursor: auto;
+  }
+
+  &:disabled + label:before {
+    box-shadow: none;
+    background: #7F4156;
+  }
+
+  &:checked + label:after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 9px;
+    background: white;
+    width: 2px;
+    height: 2px;
+    box-shadow: 2px 0 0 white, 4px 0 0 white, 4px -2px 0 white, 4px -4px 0 white,
+      4px -6px 0 white, 4px -8px 0 white;
+    transform: rotate(45deg);
+  }
+`
+
 class EmailForm extends Component {
     constructor(props) {
         super(props)
@@ -133,16 +176,29 @@ class EmailForm extends Component {
     }
 
     render() {
+        let email = this.props.email
+        if(email != null)
+            this.state.email = email
         return (
             <Container>
-                {isMobileOnly ? null : <Number>2.</Number>} 
+                {email != null
+                    ? <Checkbox className={`styled-checkbox`} id="styled-checkbox-1" type="checkbox" value="value1" disabled checked />
+                    : null}
+                {email != null
+                    ? (isMobileOnly
+                        ? <label style={{ left: `5%` }}></label>
+                        : <label style={{ left: `-15%` }}></label>)
+                    : null}
+                {isMobileOnly || email != null ? null : <Number>2.</Number>} 
                 <Form>
                     {isMobileOnly ? <MobileP>2. Оставь почту:</MobileP> : <P>Оставь почту:</P>}
-                    <Input value={this.state.email} onChange={this.handleEmailInput} />
+                    <Input value={this.state.email} onChange={this.handleEmailInput} disabled={email != null}/>
                     {
-                        isMobileOnly
-                        ? <MobileButton disabled={!this.state.formValid}>Отправить</MobileButton>
-                        : <Button disabled={!this.state.formValid}>Отправить</Button>
+                        email == null ?
+                            (isMobileOnly
+                                ? <MobileButton disabled={!this.state.formValid} onClick={() => this.props.changeEmail(this.state.email)}>Отправить</MobileButton>
+                                : <Button disabled={!this.state.formValid} onClick={() => this.props.changeEmail(this.state.email)}>Отправить</Button>)
+                        : null
                     }
                 </Form>
             </Container>
