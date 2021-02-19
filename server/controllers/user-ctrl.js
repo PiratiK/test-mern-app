@@ -10,7 +10,7 @@ createUser = async (req, res) => {
         })
     }
 
-    await User.findOne({ _id: req.params.id }, (err, user) => { 
+    await User.findOne({ id: req.body.id }, (err, user) => { 
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
